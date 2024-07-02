@@ -18,6 +18,6 @@
     }
   },
   "exclude": ["node_modules"],
-  "include": ["./scripts", "./test", "./typechain-types", "./utils"],
-  "files": ["hardhat.config.ts"]
+  "include": ["./scripts", "./test", "./typechain-types", "./utils", "./ignition"],
+  "files": ["hardhat.config.ts", "helper-hardhat-config.ts"]
 }
