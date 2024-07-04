@@ -6,6 +6,7 @@ type NetworkConfigItem = {
   gasLane: string;
   subscriptionId: string;
   callbackGasLimit: string;
+  mintFee: string;
 };
 
 type NetworkConfigInfo = {
@@ -19,6 +20,7 @@ const networkConfig: NetworkConfigInfo = {
     gasLane: "0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae",
     subscriptionId: "",
     callbackGasLimit: "500000",
+    mintFee: "10000000000000000",
   },
   11155111: {
     name: "sepolia",
@@ -26,6 +28,7 @@ const networkConfig: NetworkConfigInfo = {
     gasLane: "0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae",
     subscriptionId: "17764036186583325586525437155678008358772205049493993790544528906682153407932",
     callbackGasLimit: "500000",
+    mintFee: "10000000000000000",
   },
 };
 

@@ -26,7 +26,7 @@ const config: HardhatUserConfig = {
     apiKey: ETHERSCAN_API_KEY,
   },
   solidity: {
-    compilers: [{ version: "0.8.24" }],
+    compilers: [{ version: "0.8.24" }, { version: "0.8.20" }, { version: "0.8.19" }],
   },
   gasReporter: {
     enabled: true,
