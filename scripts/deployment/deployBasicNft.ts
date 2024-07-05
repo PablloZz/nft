@@ -11,8 +11,6 @@ async function deployBasicNft() {
   if (!developmentChains.includes(network.name) && vars.get("ETHERSCAN_API_KEY")) {
     await verify(basicNftAddress, []);
   }
-
-  console.log("------------------------------------");
 }
 
 export { deployBasicNft };

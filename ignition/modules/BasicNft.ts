@@ -8,6 +8,7 @@ export default buildModule<"BasicNftModule", "BasicNft", IgnitionModuleResult<"B
     const basicNft = m.contract("BasicNft", [], {
       from: deployer,
     });
+    console.log("BasicNft Deployed!")
 
     return { basicNft };
   },

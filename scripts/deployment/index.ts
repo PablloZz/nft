@@ -1,9 +1,16 @@
-import hre from "hardhat";
+import hre, { network } from "hardhat";
 import { deployBasicNft } from "./deployBasicNft";
+import { deployRandomIpfsNft } from "./deployRandomIpfsNft";
 
 async function main() {
+  const { name } = network;
+  const { chainId } = network.config;
+
+  if (!chainId) return console.log("Chain id isn't detected!");
+
   await hre.run("compile");
   await deployBasicNft();
+  await deployRandomIpfsNft(name, chainId);
 }
 
 main()

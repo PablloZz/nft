@@ -5,7 +5,7 @@ import { ethers } from "ethers";
 
 const BASE_FEE = ethers.parseUnits("1", 17); // 0.25 is the premium. It costs 0.25 LINK.
 const GAS_PRICE_LINK = 1000000000; // Link per gas. Calculated based on the gas price of the chain.
-const WEI_PER_UNIT_LINK = 4156305780443745;
+const WEI_PER_UNIT_LINK = 4300845385139956;
 
 export default buildModule<
   "VRFCoordinatorV2_5MockModule",
