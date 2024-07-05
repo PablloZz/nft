@@ -14,15 +14,16 @@ import { type VRFCoordinatorV2_5Mock } from "typechain-types";
 
 const IMAGES_DIR_PATH = "./images/randomIpfsNft";
 
+let tokenUris = [
+  "ipfs://QmamTejxszRGM2Ee423fUf3KVVBeoozGC7ggkFREAXw7SD",
+  "ipfs://QmVghx6uii8TEcDiBy7ezNgLthjgguBzsD1nynxj3SyjEL",
+  "ipfs://QmWMuP2QpZpbnfaZQxMfWL1raZDrS4HtnjqEGmvGHkFWLA",
+];
+
 async function deployRandomIpfsNft(networkName: string, chainId: number) {
   let vrfCoordinatorV2_5Mock: Contract & VRFCoordinatorV2_5Mock;
   let vrfCoordinatorV2_5Address: string;
   let subscriptionId = "";
-  let tokenUris = [
-    "ipfs://QmamTejxszRGM2Ee423fUf3KVVBeoozGC7ggkFREAXw7SD",
-    "ipfs://QmVghx6uii8TEcDiBy7ezNgLthjgguBzsD1nynxj3SyjEL",
-    "ipfs://QmWMuP2QpZpbnfaZQxMfWL1raZDrS4HtnjqEGmvGHkFWLA",
-  ];
 
   if (vars.get("UPLOAD_TO_PINATA") === "true") tokenUris = await handleTokenUris();
   // Get the IPFS hashes of our images
