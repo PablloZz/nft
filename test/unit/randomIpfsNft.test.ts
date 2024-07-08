@@ -12,12 +12,15 @@ let tokenUris = [
   "ipfs://QmWMuP2QpZpbnfaZQxMfWL1raZDrS4HtnjqEGmvGHkFWLA",
 ];
 
+type DogBreed = 0n | 1n | 2n;
+
 developmentChains.includes(network.name)
   ? describe("RandomIpfsNft", () => {
       const { mintFee } = networkConfig[network.config.chainId!];
       let vrfCoordinatorV2_5Mock: Contract & VRFCoordinatorV2_5Mock;
       let randomIpfsNft: Contract & RandomIpfsNft;
       let deployerAddress: string;
+      let randomIpfsNftAddress: string;
 
       beforeEach(async () => {
         deployerAddress = (await ethers.getSigners())[0].address;
@@ -42,13 +45,13 @@ developmentChains.includes(network.name)
           })
         ).randomIpfsNft as Contract & RandomIpfsNft;
 
-        const randomIpfsNftAddress = await randomIpfsNft.getAddress();
+        randomIpfsNftAddress = await randomIpfsNft.getAddress();
         await vrfCoordinatorV2_5Mock.addConsumer(subscriptionId, randomIpfsNftAddress);
       });
 
       describe("constructor", () => {
         it("Initializes constructor correctly", async () => {
-          const dogTokenUri = await randomIpfsNft.getDogTokenUris(0);
+          const dogTokenUri = await randomIpfsNft.getDogTokenUri(0);
           const contractMintFee = await randomIpfsNft.getMintFee();
 
           assert.equal(mintFee, String(contractMintFee));
@@ -57,37 +60,89 @@ developmentChains.includes(network.name)
       });
 
       describe("requestNft", () => {
+        it("Reverts if payment isn't sent with the request", async () => {
+          await expect(randomIpfsNft.requestNft()).to.be.revertedWithCustomError(
+            randomIpfsNft,
+            "RandomIpfsNft__NeedMoreETHSent",
+          );
+        });
         it("Reverts if not enough ETH was sent", async () => {
+          const fee = await randomIpfsNft.getMintFee();
+
           await expect(
             randomIpfsNft.requestNft({
-              value: ethers.parseEther("0.0001"),
+              value: fee - ethers.parseEther("0.0001"),
             }),
           ).to.be.revertedWithCustomError(randomIpfsNft, "RandomIpfsNft__NeedMoreETHSent");
         });
-        it("Emits a NftRequested event", async () => {
-          expect(randomIpfsNft.requestNft({ value: mintFee })).to.be.emit(
-            randomIpfsNft,
-            "NftRequested",
-          );
-        });
         it("Emits an event with requestId and nft requester address", async () => {
-          const transactionResponse = await randomIpfsNft.requestNft({
-            value: mintFee,
-          });
-
-          const transactionReceipt = await transactionResponse.wait(1);
-          const [requestId, requester] = (transactionReceipt!.logs[1] as EventLog).args;
-          assert.equal(typeof requestId, "bigint");
-          assert.equal(requester, deployerAddress);
+          const fee = await randomIpfsNft.getMintFee();
+          await expect(randomIpfsNft.requestNft({ value: fee }))
+            .to.emit(randomIpfsNft, "NftRequested")
+            .withArgs(1n, deployerAddress);
         });
-        it("Stores requester address by request", async () => {
-          const transactionResponse = await randomIpfsNft.requestNft({
-            value: mintFee,
-          });
+      });
 
-          const transactionReceipt = await transactionResponse.wait(1);
-          const [requestId] = (transactionReceipt!.logs[1] as EventLog).args;
-          
+      describe("fulfillRandomWords", () => {
+        it("Mints NFT after random number is returned", async () => {
+          const initialTokenCounter = await randomIpfsNft.getTokenCounter();
+
+          await new Promise<void>(async (resolve, reject) => {
+            randomIpfsNft.once("NftMinted", async (dogBreed: DogBreed, dogOwner: string) => {
+              try {
+                const updatedTokenCounter = await randomIpfsNft.getTokenCounter();
+                const tokenUri = await randomIpfsNft.tokenURI(initialTokenCounter);
+                const dogUri = await randomIpfsNft.getDogTokenUri(dogBreed);
+
+                assert.equal(
+                  Number(String(updatedTokenCounter)),
+                  Number(String(initialTokenCounter)) + 1,
+                );
+
+                assert.equal(dogOwner, deployerAddress);
+                assert.equal(dogUri, tokenUri);
+                assert.isTrue(tokenUri.includes("ipfs://"));
+              } catch (error) {
+                console.error(error);
+                reject();
+              }
+
+              resolve();
+            });
+
+            try {
+              const fee = await randomIpfsNft.getMintFee();
+              const transactionResponse = await randomIpfsNft.requestNft({ value: fee });
+              const transactionReceipt = await transactionResponse.wait(1);
+              const [requestId] = (transactionReceipt!.logs[1] as EventLog).args;
+              await vrfCoordinatorV2_5Mock.fulfillRandomWords(requestId, randomIpfsNftAddress);
+            } catch (error) {
+              console.error(error);
+              reject(error);
+            }
+          });
+        });
+      });
+      describe("getBreedFromModdedRng", () => {
+        it("Should return pug if moddedRng is less than 10", async () => {
+          const breedIndex = await randomIpfsNft.getBreedFromModdedRng(7);
+          assert.equal(breedIndex, 0n);
+        });
+        it("Should return pug if moddedRng is between 10 and 39", async () => {
+          const breedIndex = await randomIpfsNft.getBreedFromModdedRng(12);
+          assert.equal(breedIndex, 1n);
+        });
+        it("Should return pug if moddedRng is between 40 and 99", async () => {
+          const breedIndex = await randomIpfsNft.getBreedFromModdedRng(53);
+          assert.equal(breedIndex, 2n);
+        });
+        it("Reverts if moddedRng is greater or equal to all chance array sums", async () => {
+          const chanceArray = await randomIpfsNft.getChanceArray();
+          const maxChanceValue = chanceArray.reduce((total, chanceValue) => total + chanceValue);
+
+          await expect(
+            randomIpfsNft.getBreedFromModdedRng(maxChanceValue),
+          ).to.be.revertedWithCustomError(randomIpfsNft, "RandomIpfsNft__RangeOutOfBounds");
         });
       });
     })
