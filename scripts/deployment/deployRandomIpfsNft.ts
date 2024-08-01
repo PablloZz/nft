@@ -1,4 +1,4 @@
-import { ignition, network } from "hardhat";
+import { ignition } from "hardhat";
 import { vars } from "hardhat/config";
 import { VRF_SUB_FUND_AMOUNT, developmentChains, networkConfig } from "../../helper-hardhat-config";
 import RandomIpfsNftModule from "../../ignition/modules/RandomIpfsNft";

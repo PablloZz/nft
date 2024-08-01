@@ -1,6 +1,7 @@
 import hre, { network } from "hardhat";
 import { deployBasicNft } from "./deployBasicNft";
 import { deployRandomIpfsNft } from "./deployRandomIpfsNft";
+import { deployDynamicSvgNft } from "./deployDynamicSvgNft";
 
 async function main() {
   const { name } = network;
@@ -11,6 +12,7 @@ async function main() {
   await hre.run("compile");
   await deployBasicNft();
   await deployRandomIpfsNft(name, chainId);
+  await deployDynamicSvgNft(name, chainId);
 }
 
 main()

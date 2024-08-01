@@ -7,6 +7,7 @@ type NetworkConfigItem = {
   subscriptionId: string;
   callbackGasLimit: string;
   mintFee: string;
+  ethUsdPriceFeed: string;
 };
 
 type NetworkConfigInfo = {
@@ -21,6 +22,7 @@ const networkConfig: NetworkConfigInfo = {
     subscriptionId: "",
     callbackGasLimit: "500000",
     mintFee: "10000000000000000",
+    ethUsdPriceFeed: "0x1a81afB8146aeFfCFc5E50e8479e826E7D55b910",
   },
   11155111: {
     name: "sepolia",
@@ -29,6 +31,7 @@ const networkConfig: NetworkConfigInfo = {
     subscriptionId: "17764036186583325586525437155678008358772205049493993790544528906682153407932",
     callbackGasLimit: "500000",
     mintFee: "10000000000000000",
+    ethUsdPriceFeed: "0x1a81afB8146aeFfCFc5E50e8479e826E7D55b910",
   },
 };
 

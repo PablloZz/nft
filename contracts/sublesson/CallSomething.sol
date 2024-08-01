@@ -52,4 +52,62 @@ contract CallAnything {
     );
     return (bytes4(returnData), success);
   }
+
+  function getSelectorTwo() public view returns (bytes4 selector) {
+    bytes memory functionCallData = abi.encodeWithSignature(
+      "transfer(address,uint256)",
+      address(this),
+      123
+    );
+    selector = bytes4(
+      bytes.concat(
+        functionCallData[0],
+        functionCallData[1],
+        functionCallData[2],
+        functionCallData[3]
+      )
+    );
+  }
+
+  function getSelectorThree(bytes calldata functionCallData) public pure returns (bytes4 selector) {
+    assembly {
+      selector := calldataload(functionCallData.offset)
+    }
+  }
+
+  function getSelectorFour() public pure returns (bytes4 selector) {
+    return this.transfer.selector;
+  }
+}
+
+contract CallFunctionWithoutContract {
+  address public s_selectorsAndSignaturesAddress;
+
+  constructor(address selectorsAndSignaturesAddress) {
+    s_selectorsAndSignaturesAddress = selectorsAndSignaturesAddress;
+  }
+
+  function callFunctionDirectly(bytes calldata callData) public returns (bytes4, bool) {
+    (bool success, bytes memory returnData) = s_selectorsAndSignaturesAddress.call(
+      abi.encodeWithSignature("getSelectorThree(bytes)", callData)
+    );
+    return (bytes4(returnData), success);
+  }
+
+  function staticCallFunctionDirectly() public view returns (bytes4, bool) {
+    (bool success, bytes memory returnData) = s_selectorsAndSignaturesAddress.staticcall(
+      abi.encodeWithSignature("getSelectorOne()")
+    );
+    return (bytes4(returnData), success);
+  }
+
+  function callTransferFunctionDirectlyThree(
+    address someAddress,
+    uint256 amount
+  ) public returns (bytes4, bool) {
+    (bool success, bytes memory returnData) = s_selectorsAndSignaturesAddress.call(
+      abi.encodeWithSignature("transfer(address, uint256)", someAddress, amount)
+    );
+    return (bytes4(returnData), success);
+  }
 }
