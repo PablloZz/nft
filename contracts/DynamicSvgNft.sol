@@ -7,6 +7,8 @@ import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.so
 
 // import "base64-sol/base64.sol";
 
+error DynamicSvgNft__UriForNonExistedToken();
+
 contract DynamicSvgNft is ERC721 {
   // Mint
   // Store our SVG information somewhere
@@ -26,8 +28,8 @@ contract DynamicSvgNft is ERC721 {
     string memory highSvg
   ) ERC721("Dynamic SVG NFT", "DSN") {
     s_tokenCounter = 0;
-    s_frownImageURI = lowSvg;
-    s_fancyImageURI = highSvg;
+    s_frownImageURI = svgToImageURI(lowSvg);
+    s_fancyImageURI = svgToImageURI(highSvg);
     i_priceFeed = AggregatorV3Interface(priceFeedAddress);
   }
 
@@ -39,9 +41,9 @@ contract DynamicSvgNft is ERC721 {
   function mintNft(int256 highValue) public {
     uint256 newTokenId = s_tokenCounter;
     s_tokenCounter += 1;
-    s_tokenIdToHighValue[s_tokenCounter] = highValue;
-    _safeMint(msg.sender, s_tokenCounter);
-    emit NFTCreated(s_tokenCounter, highValue);
+    s_tokenIdToHighValue[newTokenId] = highValue;
+    _safeMint(msg.sender, newTokenId);
+    emit NFTCreated(newTokenId, highValue);
   }
 
   function _baseURI() internal pure override returns (string memory) {
@@ -49,7 +51,9 @@ contract DynamicSvgNft is ERC721 {
   }
 
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
-    require(_exists(tokenId), "URI for non existed token");
+    if (!_exists(tokenId)) {
+      revert DynamicSvgNft__UriForNonExistedToken();
+    }
     // data:image/svg+xml;base64
     // data:application/json;base64
 
@@ -76,5 +80,25 @@ contract DynamicSvgNft is ERC721 {
           )
         )
       );
+  }
+
+  function getFrownSvg() public view returns (string memory) {
+    return s_frownImageURI;
+  }
+
+  function getFancySvg() public view returns (string memory) {
+    return s_fancyImageURI;
+  }
+
+  function getPriceFeed() public view returns (AggregatorV3Interface) {
+    return i_priceFeed;
+  }
+
+  function getTokenCounter() public view returns (uint256) {
+    return s_tokenCounter;
+  }
+
+  function getTokenHighValue(uint256 tokenId) public view returns (int256) {
+    return s_tokenIdToHighValue[tokenId];
   }
 }

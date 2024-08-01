@@ -15,6 +15,7 @@ export default buildModule<
   const deployer = m.getAccount(0);
   const args = [decimals, initialPrice];
   console.log("Local network detected! Deploying mocks...");
+  
   const mockV3Aggregator = m.contract("MockV3Aggregator", args, {
     from: deployer,
   });

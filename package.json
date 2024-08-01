@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
+    "compile": "yarn hardhat compile",
     "deploy": "yarn hardhat run scripts/deployment",
     "deploy:local": "yarn deploy --network localhost"
   },
