@@ -23,11 +23,8 @@ developmentChains.includes(network.name)
       let dynamicSvgNft: Contract & DynamicSvgNft;
       let mockV3Aggregator: Contract & MockV3Aggregator;
       let mockV3AggregatorAddress = "";
-      let dynamicSvgNftAddress = "";
-      let deployerAddress: string;
 
       beforeEach(async () => {
-        deployerAddress = (await ethers.getSigners())[0].address;
         mockV3Aggregator = (await ignition.deploy(MockV3AggregatorModule))
           .mockV3Aggregator as Contract & MockV3Aggregator;
 
@@ -43,8 +40,6 @@ developmentChains.includes(network.name)
             },
           })
         ).dynamicSvgNft as Contract & DynamicSvgNft;
-
-        dynamicSvgNftAddress = await dynamicSvgNft.getAddress();
       });
 
       describe("constructor", () => {
@@ -103,7 +98,7 @@ developmentChains.includes(network.name)
           const base64FrownSvg = await dynamicSvgNft.svgToImageURI(FROWN_SVG);
 
           const decodedTokenURI = JSON.parse(
-            String(Buffer.from(tokenURI.split("data:application/json;base64")[1], "base64")),
+            String(Buffer.from(tokenURI.split("data:application/json;base64,")[1], "base64")),
           );
 
           assert.equal(decodedTokenURI.image, base64FrownSvg);
@@ -117,7 +112,7 @@ developmentChains.includes(network.name)
           const base64FancySvg = await dynamicSvgNft.svgToImageURI(HAPPY_SVG);
 
           const decodedTokenURI = JSON.parse(
-            String(Buffer.from(tokenURI.split("data:application/json;base64")[1], "base64")),
+            String(Buffer.from(tokenURI.split("data:application/json;base64,")[1], "base64")),
           );
 
           assert.equal(decodedTokenURI.image, base64FancySvg);

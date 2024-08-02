@@ -47,7 +47,7 @@ contract DynamicSvgNft is ERC721 {
   }
 
   function _baseURI() internal pure override returns (string memory) {
-    return "data:application/json;base64";
+    return "data:application/json;base64,";
   }
 
   function tokenURI(uint256 tokenId) public view override returns (string memory) {
@@ -55,7 +55,7 @@ contract DynamicSvgNft is ERC721 {
       revert DynamicSvgNft__UriForNonExistedToken();
     }
     // data:image/svg+xml;base64
-    // data:application/json;base64
+    // data:application/json;base64,
 
     (, int256 price, , , ) = i_priceFeed.latestRoundData();
     string memory imageURI = s_frownImageURI;

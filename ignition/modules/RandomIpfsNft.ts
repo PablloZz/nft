@@ -1,6 +1,4 @@
 import { type IgnitionModuleResult, buildModule } from "@nomicfoundation/ignition-core";
-import { networkConfig } from "../../helper-hardhat-config";
-import { network } from "hardhat";
 
 export default buildModule<
   "RandomIpfsNftModule",
@@ -8,20 +6,23 @@ export default buildModule<
   IgnitionModuleResult<"RandomIpfsNft">
 >("RandomIpfsNftModule", (m) => {
   console.log("----------------------------------------");
-  const { chainId } = network.config;
   const vrfCoordinatorV2_5Address = m.getParameter("vrfCoordinatorV2_5Address");
   const subscriptionId = m.getParameter("subscriptionId");
   const tokenUris = m.getParameter("tokenUris");
-  const { gasLane, callbackGasLimit, mintFee } = networkConfig[chainId!];
+  const gasLane = m.getParameter("gasLane");
+  const callbackGasLimit = m.getParameter("callbackGasLimit");
+  const mintFee = m.getParameter("mintFee");
   const deployer = m.getAccount(0);
 
   const randomIpfsNft = m.contract(
     "RandomIpfsNft",
     [subscriptionId, vrfCoordinatorV2_5Address, gasLane, callbackGasLimit, tokenUris, mintFee],
-    { from: deployer },
+    {
+      from: deployer,
+    },
   );
 
   console.log("RandomIpfsNft Deployed!");
-  
+
   return { randomIpfsNft };
 });

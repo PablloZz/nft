@@ -5,7 +5,7 @@ import DynamicSvgNftModule from "../../ignition/modules/DynamicSvgNft";
 import MockV3AggregatorModule from "../../ignition/modules/MockV3Aggregator";
 import { verify } from "../../utils";
 import { type Contract } from "ethers";
-import { type MockV3Aggregator } from "typechain-types";
+import { type DynamicSvgNft, type MockV3Aggregator } from "typechain-types";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -46,7 +46,7 @@ async function deployDynamicSvgNft(networkName: string, chainId: number) {
         },
       },
     })
-  ).dynamicSvgNft;
+  ).dynamicSvgNft as Contract & DynamicSvgNft;
 
   const dynamicSvgNftAddress = await dynamicSvgNft.getAddress();
 
@@ -55,6 +55,8 @@ async function deployDynamicSvgNft(networkName: string, chainId: number) {
   }
 
   console.log("------------------------------------");
+
+  return dynamicSvgNft;
 }
 
 export { deployDynamicSvgNft };

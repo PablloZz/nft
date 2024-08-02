@@ -10,7 +10,7 @@ import {
   type TokenUriMetadata,
 } from "../../utils";
 import { type Contract, type EventLog } from "ethers";
-import { type VRFCoordinatorV2_5Mock } from "typechain-types";
+import { type RandomIpfsNft, type VRFCoordinatorV2_5Mock } from "typechain-types";
 
 const IMAGES_DIR_PATH = "./images/randomIpfsNft";
 
@@ -45,6 +45,7 @@ async function deployRandomIpfsNft(networkName: string, chainId: number) {
     subscriptionId = networkConfig[chainId].subscriptionId;
   }
 
+  const { gasLane, callbackGasLimit, mintFee } = networkConfig[chainId];
   const randomIpfsNft = (
     await ignition.deploy(RandomIpfsNftModule, {
       parameters: {
@@ -52,10 +53,13 @@ async function deployRandomIpfsNft(networkName: string, chainId: number) {
           subscriptionId,
           vrfCoordinatorV2_5Address,
           tokenUris,
+          gasLane,
+          callbackGasLimit,
+          mintFee,
         },
       },
     })
-  ).randomIpfsNft;
+  ).randomIpfsNft as Contract & RandomIpfsNft;
 
   const randomIpfsNftAddress = await randomIpfsNft.getAddress();
 
@@ -64,10 +68,21 @@ async function deployRandomIpfsNft(networkName: string, chainId: number) {
   }
 
   if (!developmentChains.includes(networkName) && vars.get("ETHERSCAN_API_KEY")) {
-    await verify(randomIpfsNftAddress, [subscriptionId, vrfCoordinatorV2_5Address, tokenUris]);
+    await verify(randomIpfsNftAddress, [
+      subscriptionId,
+      vrfCoordinatorV2_5Address,
+      gasLane,
+      callbackGasLimit,
+      tokenUris,
+      mintFee,
+    ]);
   }
 
   console.log("------------------------------------");
+
+  return developmentChains.includes(networkName)
+    ? { randomIpfsNft, vrfCoordinatorV2_5Mock: vrfCoordinatorV2_5Mock! }
+    : { randomIpfsNft };
 }
 
 async function handleTokenUris() {
